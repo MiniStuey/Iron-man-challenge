@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Iron Man Mode - Multi Game Random Picker</title>
   <style>
-    /* Your existing CSS (no change needed) */
     body { font-family: Arial, sans-serif; text-align: center; background: #1c1c1c; color: #fff; margin: 0; padding: 20px; }
     #start-screen, #main-app, #congrats-screen { display: none; }
     #start-screen.active, #main-app.active { display: block; }
@@ -25,23 +24,32 @@
 </head>
 <body>
 
-<!-- Screens -->
+<!-- Start Screen -->
 <div id="start-screen" class="active">
-  <h1>Choose Your Game</h1>
-  <select id="game-select">
-    <option value="ssb64">Super Smash Bros. 64</option>
-    <option value="ssf2">Super Smash Flash 2</option>
-    <option value="streetfighter2">Street Fighter 2</option>
+  <h1>Choose Genre and Game</h1>
+
+  <select id="genre-select">
+    <option value="">-- Select Genre --</option>
+    <option value="platform">Platform Fighters</option>
+    <option value="2d">2D Fighters</option>
+    <option value="3d">3D Fighters</option>
   </select><br>
-  <button id="start-button">Start</button>
+
+  <select id="game-select" disabled>
+    <option value="">-- Select Game --</option>
+  </select><br>
+
+  <button id="start-button" disabled>Start</button>
 </div>
 
+<!-- Main App -->
 <div id="main-app">
   <h1>Iron Man Mode</h1>
   <div id="controls">
     <button id="random-pick">Random Pick</button>
     <div id="percentage"></div>
   </div>
+
   <h2>Available Characters</h2>
   <div id="available-grid"></div>
 
@@ -60,6 +68,7 @@
   </div>
 </div>
 
+<!-- Congrats Screen -->
 <div id="congrats-screen">
   <h1>🎉 Congratulations! 🎉</h1>
   <p>You have completed the Iron Man challenge!</p>
@@ -68,13 +77,15 @@
 
 <!-- JavaScript -->
 <script>
-// Roster filenames only (no full paths needed)
-const rosters = {
-  ssb64: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"],
-  ssf2: ["naruto.png", "goku.png", "ichigo.png", "megaman.png"],
-  streetfighter2: ["ryu.png", "ken.png", "chunli.png", "guile.png"]
+// --- Data ---
+const allGames = {
+  ssb64: { name: "Super Smash Bros. 64", genre: "platform", roster: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"] },
+  ssf2: { name: "Super Smash Flash 2", genre: "platform", roster: ["naruto.png", "goku.png", "ichigo.png", "megaman.png"] },
+  streetfighter2: { name: "Street Fighter 2", genre: "2d", roster: ["ryu.png", "ken.png", "chunli.png", "guile.png"] }
 };
 
+// --- Elements ---
+const genreSelect = document.getElementById('genre-select');
 const gameSelect = document.getElementById('game-select');
 const startButton = document.getElementById('start-button');
 const startScreen = document.getElementById('start-screen');
@@ -95,6 +106,7 @@ const restartButton = document.getElementById('restart-button');
 
 let pickedCharacter = null;
 
+// --- Functions ---
 function updatePercentage() {
   const total = availableGrid.children.length + selectedGrid.children.length;
   const remaining = availableGrid.children.length;
@@ -110,15 +122,11 @@ function checkCompletion() {
   }
 }
 
-function moveCharacter(character) {
+function moveCharacterOneWay(character) {
   if (availableGrid.contains(character)) {
     availableGrid.removeChild(character);
     character.classList.add('selected');
     selectedGrid.appendChild(character);
-  } else if (selectedGrid.contains(character)) {
-    selectedGrid.removeChild(character);
-    character.classList.remove('selected');
-    availableGrid.appendChild(character);
   }
   updatePercentage();
   checkCompletion();
@@ -146,26 +154,37 @@ function pickRandomCharacter() {
   popup.style.display = 'block';
 }
 
-randomPickButton.addEventListener('click', pickRandomCharacter);
+// --- Event Listeners ---
+genreSelect.addEventListener('change', () => {
+  const selectedGenre = genreSelect.value;
+  gameSelect.innerHTML = '<option value="">-- Select Game --</option>';
 
-resetGoBtn.addEventListener('click', () => {
-  if (pickedCharacter) moveCharacter(pickedCharacter);
-  popup.style.display = 'none';
+  if (selectedGenre) {
+    for (const [key, game] of Object.entries(allGames)) {
+      if (game.genre === selectedGenre) {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = game.name;
+        gameSelect.appendChild(option);
+      }
+    }
+    gameSelect.disabled = false;
+  } else {
+    gameSelect.disabled = true;
+  }
+
+  startButton.disabled = true;
 });
 
-continueBtn.addEventListener('click', () => {
-  if (pickedCharacter) moveCharacter(pickedCharacter);
-  pickRandomCharacter();
-});
-
-closeBtn.addEventListener('click', () => {
-  popup.style.display = 'none';
+gameSelect.addEventListener('change', () => {
+  startButton.disabled = gameSelect.value === "";
 });
 
 startButton.addEventListener('click', () => {
   const selectedGame = gameSelect.value;
-  const filenames = rosters[selectedGame];
-  if (!filenames) {
+  const roster = allGames[selectedGame]?.roster;
+
+  if (!roster) {
     alert("Invalid game selection.");
     return;
   }
@@ -173,14 +192,14 @@ startButton.addEventListener('click', () => {
   availableGrid.innerHTML = '';
   selectedGrid.innerHTML = '';
 
-  filenames.forEach(file => {
+  roster.forEach(file => {
     const name = file.replace('.png', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const div = document.createElement('div');
     div.className = 'character';
     div.setAttribute('data-name', name);
     div.innerHTML = `<img src="Images/${selectedGame}/${file}" alt="${name}">`;
     div.addEventListener('click', () => {
-      moveCharacter(div);
+      moveCharacterOneWay(div);
     });
     availableGrid.appendChild(div);
   });
@@ -190,9 +209,28 @@ startButton.addEventListener('click', () => {
   updatePercentage();
 });
 
+randomPickButton.addEventListener('click', pickRandomCharacter);
+
+resetGoBtn.addEventListener('click', () => {
+  if (pickedCharacter) moveCharacterOneWay(pickedCharacter);
+  popup.style.display = 'none';
+});
+
+continueBtn.addEventListener('click', () => {
+  if (pickedCharacter) moveCharacterOneWay(pickedCharacter);
+  pickRandomCharacter();
+});
+
+closeBtn.addEventListener('click', () => {
+  popup.style.display = 'none';
+});
+
 restartButton.addEventListener('click', () => {
   congratsScreen.style.display = 'none';
   startScreen.classList.add('active');
+  genreSelect.value = "";
+  gameSelect.disabled = true;
+  startButton.disabled = true;
 });
 </script>
 
