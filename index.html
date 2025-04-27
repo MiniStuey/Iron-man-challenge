@@ -29,7 +29,7 @@
 <div id="start-screen" class="active">
   <h1>Choose Your Game</h1>
   <select id="game-select">
-    <option value="smash64">Smash 64</option>
+    <option value="ssb64">Super Smash Bros. 64</option>
     <option value="ssf2">Super Smash Flash 2</option>
     <option value="streetfighter2">Street Fighter 2</option>
   </select><br>
@@ -70,7 +70,7 @@
 <script>
 // Roster filenames only (no full paths needed)
 const rosters = {
-  smash64: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"],
+  ssb64: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"],
   ssf2: ["naruto.png", "goku.png", "ichigo.png", "megaman.png"],
   streetfighter2: ["ryu.png", "ken.png", "chunli.png", "guile.png"]
 };
@@ -178,7 +178,7 @@ startButton.addEventListener('click', () => {
     const div = document.createElement('div');
     div.className = 'character';
     div.setAttribute('data-name', name);
-    div.innerHTML = `<img src="images/${selectedGame}/${file}" alt="${name}">`;
+    div.innerHTML = `<img src="Images/${selectedGame}/${file}" alt="${name}">`;
     div.addEventListener('click', () => {
       moveCharacter(div);
     });
