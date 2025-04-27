@@ -4,170 +4,77 @@
   <meta charset="UTF-8">
   <title>Iron Man Mode - Multi Game Random Picker</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #1c1c1c;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
-
-    #start-screen, #main-app, #congrats-screen {
-      display: none;
-    }
-
-    #start-screen.active, #main-app.active {
-      display: block;
-    }
-
-    select, button {
-      padding: 10px 15px;
-      margin: 10px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
-    }
-
-    #available-grid, #selected-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 10px;
-      margin-top: 10px;
-      margin-bottom: 30px;
-    }
-
-    .character {
-      background: #333;
-      padding: 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.2s, opacity 0.3s;
-      user-select: none;
-    }
-
-    .character:hover {
-      transform: scale(1.05);
-    }
-
-    .character img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      pointer-events: none;
-    }
-
-    .selected {
-      background: #555;
-      opacity: 0.6;
-    }
-
-    #popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      color: black;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      z-index: 1000;
-      text-align: center;
-      width: 300px;
-    }
-
-    #popup img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      margin-bottom: 10px;
-      border-radius: 8px;
-      border: 3px solid #00BFFF;
-      padding: 5px;
-      background: white;
-    }
-
-    #popup-buttons {
-      margin-top: 20px;
-    }
-
-    .popup-btn {
-      padding: 10px 15px;
-      margin: 5px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .reset-btn {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .continue-btn {
-      background-color: #3498db;
-      color: white;
-    }
-
-    .close-btn {
-      background-color: #f1c40f;
-      color: black;
-    }
+    /* Your existing CSS (no change needed) */
+    body { font-family: Arial, sans-serif; text-align: center; background: #1c1c1c; color: #fff; margin: 0; padding: 20px; }
+    #start-screen, #main-app, #congrats-screen { display: none; }
+    #start-screen.active, #main-app.active { display: block; }
+    select, button { padding: 10px 15px; margin: 10px; font-size: 16px; border-radius: 5px; border: none; }
+    #available-grid, #selected-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; margin-bottom: 30px; }
+    .character { background: #333; padding: 10px; border-radius: 10px; cursor: pointer; transition: transform 0.2s, opacity 0.3s; user-select: none; }
+    .character:hover { transform: scale(1.05); }
+    .character img { width: 100%; height: auto; border-radius: 8px; pointer-events: none; }
+    .selected { background: #555; opacity: 0.6; }
+    #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; text-align: center; width: 300px; }
+    #popup img { width: 100px; height: 100px; object-fit: cover; margin-bottom: 10px; border-radius: 8px; border: 3px solid #00BFFF; padding: 5px; background: white; }
+    #popup-buttons { margin-top: 20px; }
+    .popup-btn { padding: 10px 15px; margin: 5px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
+    .reset-btn { background-color: #e74c3c; color: white; }
+    .continue-btn { background-color: #3498db; color: white; }
+    .close-btn { background-color: #f1c40f; color: black; }
   </style>
 </head>
 <body>
 
-  <!-- Start screen -->
-  <div id="start-screen" class="active">
-    <h1>Choose Your Game</h1>
-    <select id="game-select">
-      <option value="smash64">Smash 64</option>
-      <option value="ssf2">Super Smash Flash 2</option>
-      <option value="streetfighter2">Street Fighter 2</option>
-    </select>
-    <br>
-    <button id="start-button">Start</button>
+<!-- Screens -->
+<div id="start-screen" class="active">
+  <h1>Choose Your Game</h1>
+  <select id="game-select">
+    <option value="smash64">Smash 64</option>
+    <option value="ssf2">Super Smash Flash 2</option>
+    <option value="streetfighter2">Street Fighter 2</option>
+  </select><br>
+  <button id="start-button">Start</button>
+</div>
+
+<div id="main-app">
+  <h1>Iron Man Mode</h1>
+  <div id="controls">
+    <button id="random-pick">Random Pick</button>
+    <div id="percentage"></div>
   </div>
+  <h2>Available Characters</h2>
+  <div id="available-grid"></div>
 
-  <!-- Main app -->
-  <div id="main-app">
-    <h1>Iron Man Mode</h1>
+  <h2>Selected Characters</h2>
+  <div id="selected-grid"></div>
 
-    <div id="controls">
-      <button id="random-pick">Random Pick</button>
-      <div id="percentage"></div>
-    </div>
-
-    <h2>Available Characters</h2>
-    <div id="available-grid"></div>
-
-    <h2>Selected Characters</h2>
-    <div id="selected-grid"></div>
-
-    <!-- Popup -->
-    <div id="popup">
-      <img id="popup-img" src="" alt="Character">
-      <h2 id="popup-name"></h2>
-      <p id="popup-progress"></p>
-      <div id="popup-buttons">
-        <button class="popup-btn reset-btn" id="reset-go">Reset & Go</button>
-        <button class="popup-btn continue-btn" id="continue">Continue</button>
-        <button class="popup-btn close-btn" id="close">Close</button>
-      </div>
+  <div id="popup">
+    <img id="popup-img" src="" alt="Character">
+    <h2 id="popup-name"></h2>
+    <p id="popup-progress"></p>
+    <div id="popup-buttons">
+      <button class="popup-btn reset-btn" id="reset-go">Reset & Go</button>
+      <button class="popup-btn continue-btn" id="continue">Continue</button>
+      <button class="popup-btn close-btn" id="close">Close</button>
     </div>
   </div>
+</div>
 
-  <!-- Congratulations screen -->
-  <div id="congrats-screen">
-    <h1>🎉 Congratulations! 🎉</h1>
-    <p>You have completed the Iron Man challenge!</p>
-    <button id="restart-button">Play Again</button>
-  </div>
+<div id="congrats-screen">
+  <h1>🎉 Congratulations! 🎉</h1>
+  <p>You have completed the Iron Man challenge!</p>
+  <button id="restart-button">Play Again</button>
+</div>
 
+<!-- JavaScript -->
 <script>
+// Roster filenames only (no full paths needed)
+const rosters = {
+  smash64: ["mario.png", "link.png", "samus.png", "pikachu.png", "kirby.png"],
+  ssf2: ["naruto.png", "goku.png", "ichigo.png", "megaman.png"],
+  streetfighter2: ["ryu.png", "ken.png", "chunli.png", "guile.png"]
+};
+
 const gameSelect = document.getElementById('game-select');
 const startButton = document.getElementById('start-button');
 const startScreen = document.getElementById('start-screen');
@@ -187,29 +94,6 @@ const closeBtn = document.getElementById('close');
 const restartButton = document.getElementById('restart-button');
 
 let pickedCharacter = null;
-
-// Game rosters
-const rosters = {
-  smash64: [
-    { name: "Mario", img: "images/mario.png" },
-    { name: "Link", img: "images/link.png" },
-    { name: "Samus", img: "images/samus.png" },
-    { name: "Pikachu", img: "images/pikachu.png" },
-    { name: "Kirby", img: "images/kirby.png" }
-  ],
-  ssf2: [
-    { name: "Naruto", img: "images/naruto.png" },
-    { name: "Goku", img: "images/goku.png" },
-    { name: "Ichigo", img: "images/ichigo.png" },
-    { name: "Mega Man", img: "images/megaman.png" }
-  ],
-  streetfighter2: [
-    { name: "Ryu", img: "images/ryu.png" },
-    { name: "Ken", img: "images/ken.png" },
-    { name: "Chun-Li", img: "images/chunli.png" },
-    { name: "Guile", img: "images/guile.png" }
-  ]
-};
 
 function updatePercentage() {
   const total = availableGrid.children.length + selectedGrid.children.length;
@@ -237,7 +121,7 @@ function moveCharacter(character) {
     availableGrid.appendChild(character);
   }
   updatePercentage();
-  checkCompletion(); // Always check if finished
+  checkCompletion();
 }
 
 function pickRandomCharacter() {
@@ -271,7 +155,7 @@ resetGoBtn.addEventListener('click', () => {
 
 continueBtn.addEventListener('click', () => {
   if (pickedCharacter) moveCharacter(pickedCharacter);
-  pickRandomCharacter(); // Immediate re-pick
+  pickRandomCharacter();
 });
 
 closeBtn.addEventListener('click', () => {
@@ -280,8 +164,8 @@ closeBtn.addEventListener('click', () => {
 
 startButton.addEventListener('click', () => {
   const selectedGame = gameSelect.value;
-  const roster = rosters[selectedGame];
-  if (!roster) {
+  const filenames = rosters[selectedGame];
+  if (!filenames) {
     alert("Invalid game selection.");
     return;
   }
@@ -289,11 +173,12 @@ startButton.addEventListener('click', () => {
   availableGrid.innerHTML = '';
   selectedGrid.innerHTML = '';
 
-  roster.forEach(character => {
+  filenames.forEach(file => {
+    const name = file.replace('.png', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     const div = document.createElement('div');
     div.className = 'character';
-    div.setAttribute('data-name', character.name);
-    div.innerHTML = `<img src="${character.img}" alt="${character.name}">`;
+    div.setAttribute('data-name', name);
+    div.innerHTML = `<img src="images/${selectedGame}/${file}" alt="${name}">`;
     div.addEventListener('click', () => {
       moveCharacter(div);
     });
@@ -310,5 +195,6 @@ restartButton.addEventListener('click', () => {
   startScreen.classList.add('active');
 });
 </script>
+
 </body>
 </html>
