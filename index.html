@@ -10,9 +10,26 @@
     #start-screen.active, #main-app.active { display: block; }
     select, button { padding: 10px 15px; margin: 10px; font-size: 16px; border-radius: 5px; border: none; }
     #available-grid, #selected-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; margin-bottom: 30px; }
-    .character { background: #333; padding: 10px; border-radius: 10px; cursor: pointer; transition: transform 0.2s, opacity 0.3s; user-select: none; }
+    .character {
+  background: #333;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.3s;
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* keeps cells consistent */
+}
     .character:hover { transform: scale(1.05); }
-    .character img { width: 100%; height: auto; border-radius: 8px; pointer-events: none; }
+    .character img {
+  width: 64px;
+  height: 80px;
+  object-fit: contain; /* ensures full image fits without distortion */
+  border-radius: 8px;
+  pointer-events: none;
+}
     .selected { background: #555; opacity: 0.6; }
     #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; text-align: center; width: 300px; }
     #popup img { width: 100px; height: 100px; object-fit: cover; margin-bottom: 10px; border-radius: 8px; border: 3px solid #00BFFF; padding: 5px; background: white; }
@@ -293,6 +310,7 @@ restartButton.addEventListener('click', () => {
 
 </body>
 </html>
+
 
 
 
