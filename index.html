@@ -1,323 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Iron Man Mode - Multi Game Iron Man</title>
-  <style>
-    /* Basic Styling */
-    body { font-family: Arial, sans-serif; text-align: center; background: #1c1c1c; color: #fff; margin: 0; padding: 20px; }
-    #start-screen, #main-app, #congrats-screen { display: none; }
-    #start-screen.active, #main-app.active { display: block; }
-    select, button { padding: 10px 15px; margin: 10px; font-size: 16px; border-radius: 5px; border: none; }
-    #available-grid, #selected-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 10px; margin-bottom: 30px; }
-    .character {
-  background: #333;
-  padding: 10px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.2s, opacity 0.3s;
-  user-select: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100px; /* keeps cells consistent */
-}
-    .character:hover { transform: scale(1.05); }
-    .character img {
-  width: 64px;
-  height: 80px;
-  object-fit: contain; /* ensures full image fits without distortion */
-  border-radius: 8px;
-  pointer-events: none;
-}
-    .selected { background: #555; opacity: 0.6; }
-    #popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; color: black; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); z-index: 1000; text-align: center; width: 300px; }
-    #popup img { width: 100px; height: 100px; object-fit: cover; margin-bottom: 10px; border-radius: 8px; border: 3px solid #00BFFF; padding: 5px; background: white; }
-    #popup-buttons { margin-top: 20px; }
-    .popup-btn { padding: 10px 15px; margin: 5px; font-size: 16px; border: none; border-radius: 5px; cursor: pointer; }
-    .reset-btn { background-color: #e74c3c; color: white; }
-    .continue-btn { background-color: #3498db; color: white; }
-    .close-btn { background-color: #f1c40f; color: black; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Iron Man Mode - Multi Game Iron Man</title>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #1c1c1c;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #start-screen, #main-app, #congrats-screen {
+            display: none;
+        }
+
+            #start-screen.active, #main-app.active {
+                display: block;
+            }
+
+        select, button {
+            padding: 10px 15px;
+            margin: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        #available-grid, #selected-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
+
+        .character {
+            background: #333;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.3s;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+            .character:hover {
+                transform: scale(1.05);
+            }
+
+            .character img {
+                width: 64px;
+                height: 80px;
+                object-fit: contain;
+                border-radius: 8px;
+                pointer-events: none;
+            }
+
+        .selected {
+            background: #555;
+            opacity: 0.6;
+        }
+
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            color: black;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            text-align: center;
+            width: 400px;
+        }
+
+        #popup-images {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+            #popup-images img {
+                width: 80px;
+                height: 80px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 3px solid #00BFFF;
+                padding: 5px;
+                background: white;
+            }
+
+        #popup-buttons {
+            margin-top: 20px;
+        }
+
+        .popup-btn {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .reset-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .continue-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .close-btn {
+            background-color: #f1c40f;
+            color: black;
+        }
+    </style>
 </head>
 <body>
 
-<!-- Start Screen -->
-<div id="start-screen" class="active">
-  <h1>Choose Genre and Game</h1>
+    <!-- Start Screen -->
+    <div id="start-screen" class="active">
+        <h1>Choose Genre and Game</h1>
 
-  <select id="genre-select">
-    <option value="">-- Select Genre --</option>
-    <option value="platform">Platform Fighters</option>
-    <option value="2d">2D Fighters</option>
-    <option value="3d">3D Fighters</option>
-    <option value="anime">Anime Fighters</option>
-    <option value="vs">Tag Team Fighters</option>
-    <option value="arena">Arena Fighters</option>
-  </select><br>
+        <select id="genre-select">
+            <option value="">-- Select Genre --</option>
+            <option value="platform">Platform Fighters</option>
+            <option value="2d">2D Fighters</option>
+            <option value="3d">3D Fighters</option>
+            <option value="anime">Anime Fighters</option>
+            <option value="vs">Tag Team Fighters</option>
+            <option value="arena">Arena Fighters</option>
+        </select><br>
 
-  <select id="game-select" disabled>
-    <option value="">-- Select Game --</option>
-  </select><br>
+        <select id="game-select" disabled>
+            <option value="">-- Select Game --</option>
+        </select><br>
 
-  <button id="start-button" disabled>Start</button>
-</div>
-
-<!-- Main App -->
-<div id="main-app">
-  <h1>Iron Man Mode</h1>
-
-  <div id="controls">
-    <button id="random-pick">Random Pick</button>
-    <button id="reset-characters">Reset Characters</button>
-    <button id="back-to-selection">Back to Selection</button>
-    <div id="percentage"></div>
-  </div>
-
-  <h2>Available Characters</h2>
-  <div id="available-grid"></div>
-
-  <h2>Selected Characters</h2>
-  <div id="selected-grid"></div>
-
-  <div id="popup">
-    <img id="popup-img" src="" alt="Character">
-    <h2 id="popup-name"></h2>
-    <p id="popup-progress"></p>
-    <div id="popup-buttons">
-      <button class="popup-btn reset-btn" id="reset-go">Reset & Go</button>
-      <button class="popup-btn continue-btn" id="continue">Continue</button>
-      <button class="popup-btn close-btn" id="close">Close</button>
+        <button id="start-button" disabled>Start</button>
     </div>
-  </div>
-</div>
 
-<!-- Congrats Screen -->
-<div id="congrats-screen">
-  <h1>🎉 Congratulations! 🎉</h1>
-  <p>You have completed the Iron Man challenge!</p>
-  <button id="restart-button">Play Again</button>
-</div>
+    <!-- Main App -->
+    <div id="main-app">
+        <h1>Iron Man Mode</h1>
 
-<!-- JavaScript -->
-<script>
-// --- Data ---
-const allGames = {
-  ssb64: { name: "Super Smash Bros. 64", genre: "platform", roster: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"] },
-  ssbr: { name: "Super Smash Bros. Remix", genre: "platform", roster: ["Banjo & Kazooie.png", "Bowser.png", "Captain Falcon.png", "Conker.png", "Crash.png", "Dark Samus.png", "Donkey Kong.png", "Dr. Luigi.png", "Dr. Mario.png", "Dragon King.png", "Ebisumaru.png", "Falco.png", "Fox.png", "Ganondorf.png", "Goemon.png", "Jigglypuff.png", "King Dedede.png", "Kirby.png", "Lanky Kong.png", "Link.png", "Lucas.png", "Luigi.png", "Mad Piano.png", "Marina.png", "Mario.png", "Marth.png", "Mewtwo.png", "Ness.png", "Peach.png", "Peppy.png", "Pikachu.png", "Roy.png", "Samus.png", "Sheik.png", "Slippy.png", "Sonic.png", "Wario.png", "Wolf.png", "Yoshi.png", "Young Link.png"] },
-  ssbm: {name: "Super Smash Bros. Melee", genre: "platform", roster: ["Dr. Mario.png", "Mario.png", "Luigi.png", "Bowser.png", "Peach.png", "Yoshi.png", "Donkey Kong.png", "Captain Falcon.png", "Ganondorf.png", "Falco.png", "Fox.png", "Ness.png", "Ice Climbers.png", "Kirby.png", "Samus.png", "Zelda.png", "Sheik.png", "Link.png", "Young Link.png", "Pichu.png", "Pikachu.png", "Jigglypuff.png", "Mewtwo.png", "Mr. Game & Watch.png", "Marth.png", "Roy.png"] },
-  ssbpmex: {name: "Super Smash Bros. Project M EX", genre: "platform", roster: ["Alucard.png", "Bayonetta.png", "Big Boss.png", "Bomberman.png", "Cloud.png", "Elizabeth.png", "Fighting Alloy Team.png", "Hero.png", "Isaac.png", "Joker.png", "Kazuya.png", "Ken.png", "Knuckles.png", "Masked Man.png", "Metal Sonic.png", "Pac-Man.png", "Richter.png", "Ryu.png", "Sans.png", "Sephiroth.png", "Shadow.png", "Silver.png", "Simon.png", "Snake.png", "Sonic.png", "Sora.png", "Squall.png", "Sub-Zero.png", "Tails.png", "Terry.png", "Vector Man.png", "-v-No. 13.png", "X.png", "Yu.png", "Zack.png", "Zero.png", "Alph.png", "Bandana Dee.png", "Banjo & Kazooie.png", "Black Knight.png", "Black Shadow.png", "Blaziken.png", "Blood Falcon.png", "Bowser.png", "Captain Falcon.png", "Charizard.png", "Chrom.png", "Corrin.png", "Daisy.png", "Dark Pit.png", "Dark Samus.png", "Deathborn.png", "Diddy Kong.png", "Donkey Kong.png", "Dr. Luigi.png", "Dr. Mario.png", "Dry Bowser.png", "Falco.png", "Fierce Deity.png", "Fox.png", "Ganondorf.png", "Geno.png", "Ice Climbers.png", "Ike.png", "Isabelle.png", "Ivysaur.png", "Jigglypuff.png", "King Dedede.png", "King K. Rool.png", "Kirby.png", "Knuckle Joe.png", "Link.png", "Little Mac.png", "Louie.png", "Lucario.png", "Lucas.png", "Lucina.png", "Luigi.png", "Lyn.png", "Mario.png", "Marth.png", "Meta Knight.png", "Metal Face.png", "Mewtwo.png", "Mr. Game & Watch.png", "Mythra.png", "Navarre.png", "Ness.png", "Ninten.png", "Olimar.png", "Palutena.png", "Peach.png", "Phantom Ganon.png", "Pichu.png", "Pikachu.png", "Pit.png", "Pyra.png", "R.O.B..png", "Ridley.png", "Robin.png", "Roy.png", "Samus.png", "Sandbag.png", "Sheik.png", "Shulk.png", "Squirtle.png", "Sukapon.png", "Toad.png", "Toon Link.png", "Toon Zelda.png", "Waluigi.png", "Wario.png", "Wii Fit Trainer.png", "Wolf.png", "Yoshi.png", "Young Link.png", "Zelda.png", "Zeraora.png", "Zero Suit Samus.png"] },
-  ssbb: {name: "Super Smash Bros. Brawl", genre: "platform", roster: ["Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Kirby.png", "Fox.png", "Pikachu.png", "Marth.png", "Mr. Game & Watch.png", "Luigi.png", "Diddy Kong.png", "Zelda.png", "Sheik.png", "Pit.png", "Meta Knight.png", "Falco.png", "Pokémon Trainer.png", "Ike.png", "Snake.png", "Peach.png", "Yoshi.png", "Ganondorf.png", "Ice Climbers.png", "King Dedede.png", "Wolf.png", "Lucario.png", "Ness.png", "Sonic.png", "Bowser.png", "Wario.png", "Toon Link.png", "ROB.png", "Olimar.png", "Captain Falcon.png", "Jigglypuff.png", "Lucas.png"] },
-  ssb4: {name: "Super Smash Bros. 4", genre: "platform", roster: ["Mario.png", "Luigi.png", "Peach.png", "Bowser.png", "Yoshi.png", "Rosalina & Luma.png", "Bowser Jr.png", "Wario.png", "Donkey Kong.png", "Diddy Kong.png", "Mr Game & Watch.png", "Little Mac.png", "Link.png", "Zelda.png", "Sheik.png", "Ganondorf.png", "Toon Link.png", "Samus.png", "Zero Suit Samus.png", "Pit.png", "Palutena.png", "Marth.png", "Ike.png", "Robin.png", "Duck Hunt.png", "Kirby.png", "King Dedede.png", "Meta Knight.png", "Fox.png", "Falco.png", "Pikachu.png", "Charizard.png", "Lucario.png", "Jigglypuff.png", "Greninja.png", "ROB.png", "Ness.png", "Captain Falcon.png", "Villager.png", "Olimar.png", "Wii Fit Trainer.png", "Shulk.png", "Dr Mario.png", "Dark Pit.png", "Lucina.png", "Pac-Man.png", "Mega Man.png", "Sonic.png", "Mewtwo.png", "Lucas.png", "Roy.png", "Ryu.png", "Cloud.png", "Corrin.png", "Bayonetta.png", "Mii Brawler.png", "Mii Gunner.png", "Mii Swordfighter.png"] },
-  ssf2: { name: "Super Smash Flash 2", genre: "platform", roster: ["Mario.png", "Luigi.png", "Peach.png", "Bowser.png", "Yoshi.png", "Wario.png", "Waluigi.png", "Donkey Kong.png", "Link.png", "Zelda.png", "Sheik.png", "Ganondorf.png", "Pikachu.png", "Jigglypuff.png", "Pichu.png", "Lucario.png", "Kirby.png", "Meta Knight.png", "Bandana Dee.png", "King Dedede.png", "Fox.png", "Falco.png", "Krystal.png", "Samus.png", "Zero Suit Samus.png", "Captain Falcon.png", "Ness.png", "Marth.png", "Pit.png", "Isaac.png", "Chibi-Robo.png", "Mr. Game & Watch.png", "Sonic.png", "Tails.png", "Mega Man.png", "Ryu.png", "Pac-Man.png", "Lloyd.png", "Simon.png", "Bomberman.png", "Black Mage.png", "Sora.png", "Rayman.png", "Goku.png", "Luffy.png", "Naruto.png", "Sandbag.png"] },
-  sf1mr: { name: "Street Fighter 1 MUGEN Remake", genre: "2d", roster: ["Ryu.png", "Retsu.png", "Lee.png", "Joe.png", "Birdie.png", "Ken.png", "Geki.png", "Gen.png", "Mike.png", "Eagle.png", "Cody.png", "Adon.png", "Sagat.png"] },
-  ssf2t: { name: "Super Street Fighter 2 Turbo", genre: "2d", roster: ["Ryu.png", "E. Honda.png", "Blanka.png", "Guile.png", "T. Hawk.png", "Fei Long.png", "Balrog.png", "Sagat.png", "Ken.png", "Chun-Li.png", "Zangief.png", "Dhalsim.png", "Cammy.png", "Dee Jay.png", "Vega.png", "M. Bison.png", "Akuma.png"] },
-  sftm: { name: "Street Fighter the Movie", genre: "2d", roster: ["Akuma.png", "Arkane.png", "Balrog.png", "Blade.png", "Cammy.png", "Chun-Li.png", "E. Honda.png", "F7.png", "Guile.png", "Ken.png", "Khyber.png", "M. Bison.png", "Ryu.png", "Sagat.png", "Sawada.png", "Vega.png", "Zangief.png"] }, 
-  sfa: { name: "Street Fighter Alpha", genre: "2d", roster: ["Adon.png", "Akuma.png", "Birdie.png", "Charlie.png", "Chun-Li.png", "Dan.png", "Guy.png", "Ken.png", "M. Bison.png", "Rose.png", "Ryu.png", "Sagat.png", "Sodom.png"] },
-  sfa2: { name: "Street Fighter Alpha 2", genre: "2d", roster: ["Adon.png", "Akuma.png", "Birdie.png", "Charlie.png", "Chun-Li.png", "Dan.png", "Dhalsim.png", "Evil Ryu.png", "Gen.png", "Guy.png", "Ken.png", "M. Bison.png", "Rolento.png", "Rose.png", "Ryu.png", "Sagat.png", "Sakura.png", "Sodom.png", "Zangief.png"] },
-  sfa3m: { name : "Street Fighter Alpha 3 MAX", genre: "2d", roster: ["Adon.png", "Akuma.png", "Balrog.png", "Birdie.png", "Blanka.png", "Cammy.png", "Charlie.png", "Chun-Li.png", "Cody.png", "Dan.png", "Dee Jay.png", "Dhalsim.png", "E. Honda.png", "Eagle.png", "Evil Ryu.png", "Fei Long.png", "Gen.png", "Guile.png", "Guy.png", "Ingrid.png", "Juli.png", "Juni.png", "Karin.png", "Ken.png", "M. Bison.png", "Maki.png", "R. Mika.png", "Rolento.png", "Rose.png", "Ryu.png", "Sagat.png", "Sakura.png", "Sodom.png", "T. Hawk.png", "Vega.png", "Yun.png", "Zangief.png"] },
-  sf33s: { name: "Street Fighter III: 3rd Strike", genre: "2d", roster: ["Akuma.png", "Alex.png", "Chun-Li.png", "Dudley.png", "Elena.png", "Hugo.png", "Ibuki.png", "Ken.png", "Makoto.png", "Necro.png", "Oro.png", "Q.png", "Remy.png", "Ryu.png", "Sean.png", "Twelve.png", "Urien.png", "Yang.png", "Yun.png"] },
-  usfiv: { name: "Ultra Street Fighter IV", genre: "2d", roster: ["Decapre.png", "Ryu.png", "Ken.png", "E. Honda.png", "Ibuki.png", "Makoto.png", "Dudley.png", "Seth.png", "Gouken.png", "Akuma.png", "Gen.png", "Dan.png", "Sakura.png", "Oni.png", "Elena.png", "Yun.png", "Juri.png", "Chun-Li.png", "Dhalsim.png", "Abel.png", "C. Viper.png", "M. Bison.png", "Sagat.png", "Cammy.png", "Dee Jay.png", "Cody.png", "Guy.png", "Hakan.png", "Rolento.png", "Poison.png", "Evil Ryu.png", "Guile.png", "Blanka.png", "Zangief.png", "Rufus.png", "El Fuerte.png", "Vega.png", "Balrog.png", "Fei Long.png", "T. Hawk.png", "Adon.png", "Rose.png", "Yang.png", "Hugo.png"] }, 
-  sfv: { name: "Street Fighter V", genre: "2d", roster: ["Ryu.png", "Chun-Li.png", "Nash.png", "M. Bison.png", "Cammy.png", "Birdie.png", "Ken.png", "Necalli.png", "Vega.png", "R. Mika.png", "Rashid.png", "Karin.png", "Zangief.png", "Laura.png", "Dhalsim.png", "F.A.N.G..png", "Alex.png", "Guile.png", "Ibuki.png", "Balrog.png", "Juri.png", "Urien.png", "Akuma.png", "Kolin.png", "Ed.png", "Abigail.png", "Menat.png", "Zeku.png", "Sakura.png", "Blanka.png", "Falke.png", "Cody.png", "G.png", "Sagat.png", "Kage.png", "Poison.png", "E. Honda.png", "Lucia.png", "Gill.png", "Seth.png", "Dan.png", "Rose.png", "Oro.png", "Akira.png", "Luke.png"] },
-  sf6: { name: "Street Fighter 6", genre: "2d", roster: ["A.K.I..png", "Akuma.png", "Blanka.png", "Cammy.png", "Chun-Li.png", "Dee Jay.png", "Dhalsim.png", "Ed.png", "Elena.png", "E. Honda.png", "Guile.png", "Jamie.png", "JP.png", "Juri.png", "Ken.png", "Kimberly.png", "Lily.png", "Luke.png", "M. Bison.png", "Mai.png", "Manon.png", "Marisa.png", "Rashid.png", "Ryu.png", "Sagat.png", "Terry.png", "Zangief.png"] },
-  tekken: { name: "Tekken", genre: "3d", roster: ["Jack.png", "Kazuya.png", "King.png", "Law.png", "Michelle.png", "Nina.png", "Paul.png", "Yoshimitsu.png", "Anna.png", "Armor King.png", "Devil.png", "Ganryu.png", "Heihachi.png", "Kuma.png", "Kunimitsu.png", "Lee.png", "P. Jack.png", "Wang.png"] },
-  tekken2: { name: "Tekken 2", genre: "3d", roster: ["Angel.png", "Anna.png", "Armor King.png", "Baek Doo San.png", "Bruce.png", "Devil.png", "Ganryu.png", "Heihachi.png", "Jack-2.png", "Jun.png", "Kazuya.png", "King.png", "Kuma.png", "Kunimitsu.png", "Law.png", "Lee.png", "Lei.png", "Michelle.png", "Nina.png", "Paul.png", "P-Jack.png", "Roger.png", "Wang.png", "Yoshimitsu.png"] },
-  tekken3: { name: "Tekken 3", genre: "3d", roster: ["Anna Williams.png", "Bryan Fury.png", "Doctor B..png", "Eddy Gordo.png", "Forest Law.png", "Gon.png", "Gun Jack.png", "Heihachi Mishima.png", "Hwaorang.png", "Jin Kazama.png", "King.png", "Kuma.png", "Lei Wulong.png", "Ling Xiaoyu.png", "Mokujin.png", "Nina Williams.png", "Ogre.png", "Panda.png", "Paul Phoenix.png", "Tiger Jackson.png", "True Ogre.png", "Yoshimitsu.png"] }, 
-  tekken4: { name: "Tekken 4", genre: "3d", roster: ["Bryan Fury.png", "Christie Montiero.png", "Combot.png", "Craig Murdock.png", "Eddy Gordo.png", "Heihachi.png", "Hwaorang.png", "Jin.png", "Julia Chang.png", "Kazuya.png", "King.png", "Kuma.png", "Lee Chaolan.png", "Lei Wulang.png", "Ling Xiaoyu.png", "Marshall Law.png", "Miharu Hirano.png", "Nina Williams.png", "Panda.png", "Paul Phoenix.png", "Steve Fox.png", "Violet.png", "Yoshimitsu.png"] },
-  tekken5dr: { name: "Tekken 5: Dark Resurrection", genre: "3d", roster: ["Anna Williams.png", "Armor King.png", "Asuka Kazama.png", "Baek Doo San.png", "Bruce Irvin.png", "Bryan Fury.png", "Christie Monteiro.png", "Craig Marduk.png", "Devil Jin.png", "Eddy Gordo.png", "Feng Wei.png", "Ganryu.png", "Heihachi.png", "Hwoarang.png", "JACK-5.png", "Jin Kazama.png", "Jinpachi.png", "Julia Chang.png", "Kazuya.png", "King.png", "Kuma.png", "Lee Chaolan.png", "Lei Wulong.png", "Lili Rochefort.png", "Ling Xiaoyu.png", "Marshall Law.png", "Nina Williams.png", "Paul Phoenix.png", "Raven.png", "Roger Jr..png", "Sergei Dragunov.png", "Steve Fox.png", "Wang Jinrei.png", "Yoshimitsu.png"] },
-  tekken6: { name: "Tekken 6", genre: "3d", roster: ["Alisa.png", "Anna.png", "Armor King.png", "Asuka.png", "Baek.png", "Bob.png", "Bruce.png", "Bryan.png", "Christie.png", "Devil Jin.png", "Dragunov.png", "Eddy.png", "Feng.png", "Ganryu.png", "Heihachi.png", "Hwoarang.png", "JACK-6.png", "Jin.png", "Julia.png", "Kazuya.png", "King.png", "Kuma.png", "Lars.png", "Law.png", "Lee.png", "Lei.png", "Leo.png", "Lili.png", "Marduk.png", "Miguel.png", "Mokujin.png", "Nina.png", "Panda.png", "Paul.png", "Raven.png", "Roger Jr..png", "Steve.png", "Wang.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
-  tekken7: { name: "Tekken 7", genre: "3d", roster: ["Akuma.png", "Alisa.png", "Anna.png", "Armor King.png", "Asuka.png", "Bob.png", "Bryan.png", "Claudio.png", "Devil Jin.png", "Dragunov.png", "Eddy.png", "Eliza.png", "Fahkumram.png", "Feng.png", "Ganryu.png", "Geese.png", "Gigas.png", "Heihachi.png", "Hwoarang.png", "Jack-7.png", "Jin.png", "Josie.png", "Julia.png", "Katarina.png", "Kazumi.png", "Kazuya.png", "King.png", "Kuma.png", "Kunimitsu.png", "Lars.png", "Law.png", "Lee.png", "Lei.png", "Leo.png", "Leroy.png", "Lidia.png", "Lili.png", "Lucky Chloe.png", "Marduk.png", "Master Raven.png", "Miguel.png", "Negan.png", "Nina.png", "Noctis.png", "Panda.png", "Paul.png", "Shaheen.png", "Steve.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
-  tekken8: { name: "Tekken 8", genre: "3d", roster: ["Alisa.png", "Anna.png", "Asuka.png", "Azucena.png", "Bryan.png", "Claudio.png", "Clive.png", "Devil Jin.png", "Dragunov.png", "Eddy Gordo.png", "Fahkumram.png", "Feng.png", "Heihachi.png", "Hwoarang.png", "Jack-8.png", "Jin.png", "Jun.png", "Kazuya.png", "King.png", "Kuma.png", "Lars.png", "Law.png", "Lee.png", "Leo.png", "Leroy.png", "Lidia.png", "Lili.png", "Nina.png", "Panda.png", "Paul.png", "Raven.png", "Reina.png", "Shaheen.png", "Steve.png", "Victor.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
-  gg: { name: "Guilty Gear", genre: "anime", roster: ["Sol Badguy.png", "Ky Kiske.png", "May.png", "Dr. Baldhead.png", "Potemkin.png", "Chipp Zanuff.png", "Zato-ONE.png", "Millia Rage.png", "Axl Low.png", "Kliff Undersn.png", "Testament.png", "Justice.png", "Baiken.png"] },
-  ggx: { name: "Guilty Gear X", genre: "anime", roster: ["Anji.png", "Axl.png", "Baiken.png", "Chipp.png", "Dizzy.png", "Faust.png", "Jam.png", "Johnny.png", "Ky.png", "May.png", "Millia.png", "Potemkin.png", "Sol Badguy.png", "Testament.png", "Venom.png", "Zato-1.png"] },
-  ggxxacp: { name: "Guilty Gear XX Λ Core Plus R", genre: "anime", roster: ["A.B.A..png", "Anji.png", "Axl.png", "Baiken.png", "Bridget.png", "Chipp.png", "Dizzy.png", "Eddie.png", "Faust.png", "I-No.png", "Jam.png", "Johnny.png", "Justice.png", "Kliff.png", "Ky.png", "May.png", "Millia.png", "Order-Sol.png", "Potemkin.png", "Robo-Ky.png", "Slayer.png", "Sol Badguy.png", "Testament.png", "Venom.png", "Zappa.png"] },
-  ggxr2: { name: "Guilty Gear Xrd Rev 2", genre: "anime", roster: ["Answer.png", "Axl.png", "Baiken.png", "Bedman.png", "Chipp.png", "Dizzy.png", "Elphelt.png", "Faust.png", "I-No.png", "Jack-O.png", "Jam.png", "Johnny.png", "Kum.png", "Ky.png", "Leo.png", "May.png", "Millia.png", "Potemkin.png", "Ramlethal.png", "Raven.png", "Sin.png", "Slayer.png", "Sol Badguy.png", "Venom.png", "Zato-1.png"] },
-  ggs: { name: "Guilty Gear Strive", genre: "anime", roster:["A.B.A..png", "Anji.png", "Asuka R.png", "Axl.png", "Baiken.png", "Bedman.png", "Bridget.png", "Chipp.png", "Dizzy.png", "Elphelt.png", "Faust.png", "Giovanna.png", "Goldlewis.png", "Happy Chaos.png", "Jack-O.png", "Johnny.png", "Ky.png", "Leo.png", "Lucy.png", "May.png", "Millia.png", "Nagoriyuki.png", "Potemkin.png", "Ramlethal.png", "Sin.png", "Slayer.png", "Sol Badguy.png", "Testament.png", "Unika.png", "Venom.png", "Zato-1.png"] },
-  xmvssf: { name: "X-Men vs. Street Fighter", genre: "vs", roster: ["Akuma.png", "Magneto.png", "Juggernaut.png", "Dhalsim.png", "M. Bison.png", "Sabretooth.png", "Storm.png", "Chun-Li.png", "Zangief.png", "Gambit.png", "Rogue.png", "Cammy.png", "Charlie.png", "Wolverine.png", "Cyclops.png", "Ryu.png", "Ken.png"] },
-  nuns: { name: "Naruto: Ultimate Ninja Storm", genre: "arena", roster: ["Anko Mitarashi.png", "Asuma Sarutobi.png", "Choji Akimiji.png", "Gaara of the Sand.png", "Hashirama Senju.png", "Hinata Hyuga.png", "Hiruzen Sarutobe.png", "Ino Yamanaka.png", "Itachi Uchiha.png", "Jiraiya.png", "Jirobo.png", "Kabuto Yakushi.png", "Kakashi Hatake.png", "Kankuro.png", "Kiba Inuzuka.png", "Kidomaru.png", "Kimimaro.png", "Kisame Hoshigake.png", "Kurenai Yuhi.png", "Might Guy.png", "Naruto Uzumaki.png", "Neji Hyuga.png", "Orochimaru.png", "Rock Lee.png", "Sakon & Ukon.png", "Sakura Haruno.png", "Sasuke Uchiha.png", "Shikamaru Nara.png", "Shino Aburame.png", "Shizune.png", "Tayuya.png", "Temari.png", "Tenten.png", "Tobirama Senju.png", "Tsunade.png"] },
-  dbzbt1: { name: "Dragon Ball Z: Budokai Tenkaichi", genre: "arena", roster: ["Android 16.png", "Android 17.png", "Android 18.png", "Android 19.png", "Android 20.png", "Baby Vegeta.png", "Bardock.png", "Bojack.png", "Broly.png", "Burter.png", "Captain Ginyu.png", "Imperfect Cell.png", "Semi-Perfect Cell.png", "Perfect Cell.png", "Cell Jr.png", "Chiaotzu.png", "Cooler.png", "Demon King Dabura.png", "Dodoria.png", "Frieza.png", "Form 2 Frieza.png", "Form 3 Frieza.png", "Final Form Frieza.png", "Metal Frieza.png", "Full Power Frieza.png", "General Tao.png", "Gogeta.png", "Gohan.png", "Gohan SS.png", "Gohan SS2.png", "Ultimate Gohan.png", "Goku SS.png", "Goku SS2.png", "Goku SS3.png", "Goku SS4.png", "Goku.png", "Goten.png", "Goten SS.png", "Gotenks.png",  "Gotenks SS.png", "Gotenks SS3.png", "Great Ape.png", "Great Saiyaman.png", "Guldo.png", "Mr. Satan.png", "Janemba.png", "Jeice.png", "Kid Buu.png", "Kid Gohan.png", "Kid Goku.png", "Kid Trunks.png", "Kid Trunks SS.png", "Krillin.png", "Majin Buu (good).png", "Majin Buu (pure evil).png", "Master Roshi.png", "Nappa.png", "Piccolo.png", "Raditz.png", "Recoome.png", "Saibaman.png", "Super 17.png", "Super Buu.png", "Super Buu (Gotenks).png", "Super Buu (Piccolo).png", "Super Gogeta.png", "Teen Gohan.png", "Teen Gohan SS.png", "Teen Gohan SS2.png", "Tien.png", "Trunks.png", "Trunks SS.png", "Trunks SSG4.png", "Trunks (w Sword).png", "Trunks (w Sword) SS.png", "Vegeta (Scouter).png", "Great Ape Vegeta.png", "Vegeta.png", "Vegeta SS.png", "Majin Vegeta.png", "Vegeta SS2.png", "Vegeta SS4.png", "Vegito.png", "Vegito SS.png", "Videl.png", "Yamcha.png", "Zarbon.png", "Zarbon (Post-Transformation).png"] } 
-};
+        <div id="controls">
+            <button id="random-pick">Random Pick</button>
+            <button id="reset-characters">Reset Characters</button>
+            <button id="back-to-selection">Back to Selection</button>
+            <select id="team-size-select">
+                <option value="1">1 Character</option>
+                <option value="2">2 Characters</option>
+                <option value="3">3 Characters</option>
+                <option value="4">4 Characters</option>
+            </select>
+            <div id="percentage"></div>
+        </div>
 
-// --- Elements ---
-const genreSelect = document.getElementById('genre-select');
-const gameSelect = document.getElementById('game-select');
-const startButton = document.getElementById('start-button');
-const startScreen = document.getElementById('start-screen');
-const mainApp = document.getElementById('main-app');
-const congratsScreen = document.getElementById('congrats-screen');
-const availableGrid = document.getElementById('available-grid');
-const selectedGrid = document.getElementById('selected-grid');
-const randomPickButton = document.getElementById('random-pick');
-const resetCharactersButton = document.getElementById('reset-characters');
-const backToSelectionButton = document.getElementById('back-to-selection'); // <-- new
-const percentageDisplay = document.getElementById('percentage');
-const popup = document.getElementById('popup');
-const popupImg = document.getElementById('popup-img');
-const popupName = document.getElementById('popup-name');
-const popupProgress = document.getElementById('popup-progress');
-const resetGoBtn = document.getElementById('reset-go');
-const continueBtn = document.getElementById('continue');
-const closeBtn = document.getElementById('close');
-const restartButton = document.getElementById('restart-button');
+        <h2>Available Characters</h2>
+        <div id="available-grid"></div>
 
-let pickedCharacter = null;
-let currentRoster = [];
-let currentGame = "";
+        <h2>Selected Characters</h2>
+        <div id="selected-grid"></div>
 
-function updatePercentage() {
-  const total = availableGrid.children.length + selectedGrid.children.length;
-  const remaining = availableGrid.children.length;
-  const percentage = total === 0 ? 0 : (remaining / total * 100).toFixed(1);
-  percentageDisplay.textContent = `${percentage}% Characters Remaining`;
-}
+        <div id="popup">
+            <div id="popup-images"></div>
+            <h2 id="popup-name"></h2>
+            <p id="popup-progress"></p>
+            <div id="popup-buttons">
+                <button class="popup-btn reset-btn" id="reset-go">Reset & Go</button>
+                <button class="popup-btn continue-btn" id="continue">Continue</button>
+                <button class="popup-btn close-btn" id="close">Close</button>
+            </div>
+        </div>
+    </div>
 
-function checkCompletion() {
-  if (availableGrid.children.length === 0) {
-    mainApp.classList.remove('active');
-    congratsScreen.style.display = 'block';
-    popup.style.display = 'none';
-  }
-}
+    <!-- Congrats Screen -->
+    <div id="congrats-screen">
+        <h1>🎉 Congratulations! 🎉</h1>
+        <p>You have completed the Iron Man challenge!</p>
+        <button id="restart-button">Play Again</button>
+    </div>
 
-function moveCharacterOneWay(character) {
-  if (availableGrid.contains(character)) {
-    availableGrid.removeChild(character);
-    character.classList.add('selected');
-    selectedGrid.appendChild(character);
-  }
-  updatePercentage();
-  checkCompletion();
-}
+    <!-- JavaScript -->
+    <script>
+        /* --- Data --- */
+        const allGames = {
+            ssb64: { name: "Super Smash Bros. 64", genre: "platform", roster: ["Luigi.png", "Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Captain Falcon.png", "Ness.png", "Yoshi.png", "Kirby.png", "Fox.png", "Pikachu.png", "Jigglypuff.png"] },
+            ssbr: { name: "Super Smash Bros. Remix", genre: "platform", roster: ["Banjo & Kazooie.png", "Bowser.png", "Captain Falcon.png", "Conker.png", "Crash.png", "Dark Samus.png", "Donkey Kong.png", "Dr. Luigi.png", "Dr. Mario.png", "Dragon King.png", "Ebisumaru.png", "Falco.png", "Fox.png", "Ganondorf.png", "Goemon.png", "Jigglypuff.png", "King Dedede.png", "Kirby.png", "Lanky Kong.png", "Link.png", "Lucas.png", "Luigi.png", "Mad Piano.png", "Marina.png", "Mario.png", "Marth.png", "Mewtwo.png", "Ness.png", "Peach.png", "Peppy.png", "Pikachu.png", "Roy.png", "Samus.png", "Sheik.png", "Slippy.png", "Sonic.png", "Wario.png", "Wolf.png", "Yoshi.png", "Young Link.png"] },
+            ssbm: { name: "Super Smash Bros. Melee", genre: "platform", roster: ["Dr. Mario.png", "Mario.png", "Luigi.png", "Bowser.png", "Peach.png", "Yoshi.png", "Donkey Kong.png", "Captain Falcon.png", "Ganondorf.png", "Falco.png", "Fox.png", "Ness.png", "Ice Climbers.png", "Kirby.png", "Samus.png", "Zelda.png", "Sheik.png", "Link.png", "Young Link.png", "Pichu.png", "Pikachu.png", "Jigglypuff.png", "Mewtwo.png", "Mr. Game & Watch.png", "Marth.png", "Roy.png"] },
+            ssbpmex: { name: "Super Smash Bros. Project M EX", genre: "platform", roster: ["Alucard.png", "Bayonetta.png", "Big Boss.png", "Bomberman.png", "Cloud.png", "Elizabeth.png", "Fighting Alloy Team.png", "Hero.png", "Isaac.png", "Joker.png", "Kazuya.png", "Ken.png", "Knuckles.png", "Masked Man.png", "Metal Sonic.png", "Pac-Man.png", "Richter.png", "Ryu.png", "Sans.png", "Sephiroth.png", "Shadow.png", "Silver.png", "Simon.png", "Snake.png", "Sonic.png", "Sora.png", "Squall.png", "Sub-Zero.png", "Tails.png", "Terry.png", "Vector Man.png", "-v-No. 13.png", "X.png", "Yu.png", "Zack.png", "Zero.png", "Alph.png", "Bandana Dee.png", "Banjo & Kazooie.png", "Black Knight.png", "Black Shadow.png", "Blaziken.png", "Blood Falcon.png", "Bowser.png", "Captain Falcon.png", "Charizard.png", "Chrom.png", "Corrin.png", "Daisy.png", "Dark Pit.png", "Dark Samus.png", "Deathborn.png", "Diddy Kong.png", "Donkey Kong.png", "Dr. Luigi.png", "Dr. Mario.png", "Dry Bowser.png", "Falco.png", "Fierce Deity.png", "Fox.png", "Ganondorf.png", "Geno.png", "Ice Climbers.png", "Ike.png", "Isabelle.png", "Ivysaur.png", "Jigglypuff.png", "King Dedede.png", "King K. Rool.png", "Kirby.png", "Knuckle Joe.png", "Link.png", "Little Mac.png", "Louie.png", "Lucario.png", "Lucas.png", "Lucina.png", "Luigi.png", "Lyn.png", "Mario.png", "Marth.png", "Meta Knight.png", "Metal Face.png", "Mewtwo.png", "Mr. Game & Watch.png", "Mythra.png", "Navarre.png", "Ness.png", "Ninten.png", "Olimar.png", "Palutena.png", "Peach.png", "Phantom Ganon.png", "Pichu.png", "Pikachu.png", "Pit.png", "Pyra.png", "R.O.B..png", "Ridley.png", "Robin.png", "Roy.png", "Samus.png", "Sandbag.png", "Sheik.png", "Shulk.png", "Squirtle.png", "Sukapon.png", "Toad.png", "Toon Link.png", "Toon Zelda.png", "Waluigi.png", "Wario.png", "Wii Fit Trainer.png", "Wolf.png", "Yoshi.png", "Young Link.png", "Zelda.png", "Zeraora.png", "Zero Suit Samus.png"] },
+            ssbb: { name: "Super Smash Bros. Brawl", genre: "platform", roster: ["Mario.png", "Donkey Kong.png", "Link.png", "Samus.png", "Kirby.png", "Fox.png", "Pikachu.png", "Marth.png", "Mr. Game & Watch.png", "Luigi.png", "Diddy Kong.png", "Zelda.png", "Sheik.png", "Pit.png", "Meta Knight.png", "Falco.png", "Pokémon Trainer.png", "Ike.png", "Snake.png", "Peach.png", "Yoshi.png", "Ganondorf.png", "Ice Climbers.png", "King Dedede.png", "Wolf.png", "Lucario.png", "Ness.png", "Sonic.png", "Bowser.png", "Wario.png", "Toon Link.png", "ROB.png", "Olimar.png", "Captain Falcon.png", "Jigglypuff.png", "Lucas.png"] },
+            ssb4: { name: "Super Smash Bros. 4", genre: "platform", roster: ["Mario.png", "Luigi.png", "Peach.png", "Bowser.png", "Yoshi.png", "Rosalina & Luma.png", "Bowser Jr.png", "Wario.png", "Donkey Kong.png", "Diddy Kong.png", "Mr Game & Watch.png", "Little Mac.png", "Link.png", "Zelda.png", "Sheik.png", "Ganondorf.png", "Toon Link.png", "Samus.png", "Zero Suit Samus.png", "Pit.png", "Palutena.png", "Marth.png", "Ike.png", "Robin.png", "Duck Hunt.png", "Kirby.png", "King Dedede.png", "Meta Knight.png", "Fox.png", "Falco.png", "Pikachu.png", "Charizard.png", "Lucario.png", "Jigglypuff.png", "Greninja.png", "ROB.png", "Ness.png", "Captain Falcon.png", "Villager.png", "Olimar.png", "Wii Fit Trainer.png", "Shulk.png", "Dr Mario.png", "Dark Pit.png", "Lucina.png", "Pac-Man.png", "Mega Man.png", "Sonic.png", "Mewtwo.png", "Lucas.png", "Roy.png", "Ryu.png", "Cloud.png", "Corrin.png", "Bayonetta.png", "Mii Brawler.png", "Mii Gunner.png", "Mii Swordfighter.png"] },
+            ssf2: { name: "Super Smash Flash 2", genre: "platform", roster: ["Mario.png", "Luigi.png", "Peach.png", "Bowser.png", "Yoshi.png", "Wario.png", "Waluigi.png", "Donkey Kong.png", "Link.png", "Zelda.png", "Sheik.png", "Ganondorf.png", "Pikachu.png", "Jigglypuff.png", "Pichu.png", "Lucario.png", "Kirby.png", "Meta Knight.png", "Bandana Dee.png", "King Dedede.png", "Fox.png", "Falco.png", "Krystal.png", "Samus.png", "Zero Suit Samus.png", "Captain Falcon.png", "Ness.png", "Marth.png", "Pit.png", "Isaac.png", "Chibi-Robo.png", "Mr. Game & Watch.png", "Sonic.png", "Tails.png", "Mega Man.png", "Ryu.png", "Pac-Man.png", "Lloyd.png", "Simon.png", "Bomberman.png", "Black Mage.png", "Sora.png", "Rayman.png", "Goku.png", "Luffy.png", "Naruto.png", "Sandbag.png"] },
+            sf1mr: { name: "Street Fighter 1 MUGEN Remake", genre: "2d", roster: ["Ryu.png", "Retsu.png", "Lee.png", "Joe.png", "Birdie.png", "Ken.png", "Geki.png", "Gen.png", "Mike.png", "Eagle.png", "Cody.png", "Adon.png", "Sagat.png"] },
+            ssf2t: { name: "Super Street Fighter 2 Turbo", genre: "2d", roster: ["Ryu.png", "E. Honda.png", "Blanka.png", "Guile.png", "T. Hawk.png", "Fei Long.png", "Balrog.png", "Sagat.png", "Ken.png", "Chun-Li.png", "Zangief.png", "Dhalsim.png", "Cammy.png", "Dee Jay.png", "Vega.png", "M. Bison.png", "Akuma.png"] },
+            sftm: { name: "Street Fighter the Movie", genre: "2d", roster: ["Akuma.png", "Arkane.png", "Balrog.png", "Blade.png", "Cammy.png", "Chun-Li.png", "E. Honda.png", "F7.png", "Guile.png", "Ken.png", "Khyber.png", "M. Bison.png", "Ryu.png", "Sagat.png", "Sawada.png", "Vega.png", "Zangief.png"] },
+            sfa: { name: "Street Fighter Alpha", genre: "2d", roster: ["Adon.png", "Akuma.png", "Birdie.png", "Charlie.png", "Chun-Li.png", "Dan.png", "Guy.png", "Ken.png", "M. Bison.png", "Rose.png", "Ryu.png", "Sagat.png", "Sodom.png"] },
+            sfa2: { name: "Street Fighter Alpha 2", genre: "2d", roster: ["Adon.png", "Akuma.png", "Birdie.png", "Charlie.png", "Chun-Li.png", "Dan.png", "Dhalsim.png", "Evil Ryu.png", "Gen.png", "Guy.png", "Ken.png", "M. Bison.png", "Rolento.png", "Rose.png", "Ryu.png", "Sagat.png", "Sakura.png", "Sodom.png", "Zangief.png"] },
+            sfa3m: { name: "Street Fighter Alpha 3 MAX", genre: "2d", roster: ["Adon.png", "Akuma.png", "Balrog.png", "Birdie.png", "Blanka.png", "Cammy.png", "Charlie.png", "Chun-Li.png", "Cody.png", "Dan.png", "Dee Jay.png", "Dhalsim.png", "E. Honda.png", "Eagle.png", "Evil Ryu.png", "Fei Long.png", "Gen.png", "Guile.png", "Guy.png", "Ingrid.png", "Juli.png", "Juni.png", "Karin.png", "Ken.png", "M. Bison.png", "Maki.png", "R. Mika.png", "Rolento.png", "Rose.png", "Ryu.png", "Sagat.png", "Sakura.png", "Sodom.png", "T. Hawk.png", "Vega.png", "Yun.png", "Zangief.png"] },
+            sf33s: { name: "Street Fighter III: 3rd Strike", genre: "2d", roster: ["Akuma.png", "Alex.png", "Chun-Li.png", "Dudley.png", "Elena.png", "Hugo.png", "Ibuki.png", "Ken.png", "Makoto.png", "Necro.png", "Oro.png", "Q.png", "Remy.png", "Ryu.png", "Sean.png", "Twelve.png", "Urien.png", "Yang.png", "Yun.png"] },
+            usfiv: { name: "Ultra Street Fighter IV", genre: "2d", roster: ["Decapre.png", "Ryu.png", "Ken.png", "E. Honda.png", "Ibuki.png", "Makoto.png", "Dudley.png", "Seth.png", "Gouken.png", "Akuma.png", "Gen.png", "Dan.png", "Sakura.png", "Oni.png", "Elena.png", "Yun.png", "Juri.png", "Chun-Li.png", "Dhalsim.png", "Abel.png", "C. Viper.png", "M. Bison.png", "Sagat.png", "Cammy.png", "Dee Jay.png", "Cody.png", "Guy.png", "Hakan.png", "Rolento.png", "Poison.png", "Evil Ryu.png", "Guile.png", "Blanka.png", "Zangief.png", "Rufus.png", "El Fuerte.png", "Vega.png", "Balrog.png", "Fei Long.png", "T. Hawk.png", "Adon.png", "Rose.png", "Yang.png", "Hugo.png"] },
+            sfv: { name: "Street Fighter V", genre: "2d", roster: ["Ryu.png", "Chun-Li.png", "Nash.png", "M. Bison.png", "Cammy.png", "Birdie.png", "Ken.png", "Necalli.png", "Vega.png", "R. Mika.png", "Rashid.png", "Karin.png", "Zangief.png", "Laura.png", "Dhalsim.png", "F.A.N.G..png", "Alex.png", "Guile.png", "Ibuki.png", "Balrog.png", "Juri.png", "Urien.png", "Akuma.png", "Kolin.png", "Ed.png", "Abigail.png", "Menat.png", "Zeku.png", "Sakura.png", "Blanka.png", "Falke.png", "Cody.png", "G.png", "Sagat.png", "Kage.png", "Poison.png", "E. Honda.png", "Lucia.png", "Gill.png", "Seth.png", "Dan.png", "Rose.png", "Oro.png", "Akira.png", "Luke.png"] },
+            sf6: { name: "Street Fighter 6", genre: "2d", roster: ["A.K.I..png", "Akuma.png", "Blanka.png", "Cammy.png", "Chun-Li.png", "Dee Jay.png", "Dhalsim.png", "Ed.png", "Elena.png", "E. Honda.png", "Guile.png", "Jamie.png", "JP.png", "Juri.png", "Ken.png", "Kimberly.png", "Lily.png", "Luke.png", "M. Bison.png", "Mai.png", "Manon.png", "Marisa.png", "Rashid.png", "Ryu.png", "Sagat.png", "Terry.png", "Zangief.png"] },
+            tekken: { name: "Tekken", genre: "3d", roster: ["Jack.png", "Kazuya.png", "King.png", "Law.png", "Michelle.png", "Nina.png", "Paul.png", "Yoshimitsu.png", "Anna.png", "Armor King.png", "Devil.png", "Ganryu.png", "Heihachi.png", "Kuma.png", "Kunimitsu.png", "Lee.png", "P. Jack.png", "Wang.png"] },
+            tekken2: { name: "Tekken 2", genre: "3d", roster: ["Angel.png", "Anna.png", "Armor King.png", "Baek Doo San.png", "Bruce.png", "Devil.png", "Ganryu.png", "Heihachi.png", "Jack-2.png", "Jun.png", "Kazuya.png", "King.png", "Kuma.png", "Kunimitsu.png", "Law.png", "Lee.png", "Lei.png", "Michelle.png", "Nina.png", "Paul.png", "P-Jack.png", "Roger.png", "Wang.png", "Yoshimitsu.png"] },
+            tekken3: { name: "Tekken 3", genre: "3d", roster: ["Anna Williams.png", "Bryan Fury.png", "Doctor B..png", "Eddy Gordo.png", "Forest Law.png", "Gon.png", "Gun Jack.png", "Heihachi Mishima.png", "Hwaorang.png", "Jin Kazama.png", "King.png", "Kuma.png", "Lei Wulong.png", "Ling Xiaoyu.png", "Mokujin.png", "Nina Williams.png", "Ogre.png", "Panda.png", "Paul Phoenix.png", "Tiger Jackson.png", "True Ogre.png", "Yoshimitsu.png"] },
+            tekken4: { name: "Tekken 4", genre: "3d", roster: ["Bryan Fury.png", "Christie Montiero.png", "Combot.png", "Craig Murdock.png", "Eddy Gordo.png", "Heihachi.png", "Hwaorang.png", "Jin.png", "Julia Chang.png", "Kazuya.png", "King.png", "Kuma.png", "Lee Chaolan.png", "Lei Wulang.png", "Ling Xiaoyu.png", "Marshall Law.png", "Miharu Hirano.png", "Nina Williams.png", "Panda.png", "Paul Phoenix.png", "Steve Fox.png", "Violet.png", "Yoshimitsu.png"] },
+            tekken5dr: { name: "Tekken 5: Dark Resurrection", genre: "3d", roster: ["Anna Williams.png", "Armor King.png", "Asuka Kazama.png", "Baek Doo San.png", "Bruce Irvin.png", "Bryan Fury.png", "Christie Monteiro.png", "Craig Marduk.png", "Devil Jin.png", "Eddy Gordo.png", "Feng Wei.png", "Ganryu.png", "Heihachi.png", "Hwoarang.png", "JACK-5.png", "Jin Kazama.png", "Jinpachi.png", "Julia Chang.png", "Kazuya.png", "King.png", "Kuma.png", "Lee Chaolan.png", "Lei Wulong.png", "Lili Rochefort.png", "Ling Xiaoyu.png", "Marshall Law.png", "Nina Williams.png", "Paul Phoenix.png", "Raven.png", "Roger Jr..png", "Sergei Dragunov.png", "Steve Fox.png", "Wang Jinrei.png", "Yoshimitsu.png"] },
+            tekken6: { name: "Tekken 6", genre: "3d", roster: ["Alisa.png", "Anna.png", "Armor King.png", "Asuka.png", "Baek.png", "Bob.png", "Bruce.png", "Bryan.png", "Christie.png", "Devil Jin.png", "Dragunov.png", "Eddy.png", "Feng.png", "Ganryu.png", "Heihachi.png", "Hwoarang.png", "JACK-6.png", "Jin.png", "Julia.png", "Kazuya.png", "King.png", "Kuma.png", "Lars.png", "Law.png", "Lee.png", "Lei.png", "Leo.png", "Lili.png", "Marduk.png", "Miguel.png", "Mokujin.png", "Nina.png", "Panda.png", "Paul.png", "Raven.png", "Roger Jr..png", "Steve.png", "Wang.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
+            tekken7: { name: "Tekken 7", genre: "3d", roster: ["Akuma.png", "Alisa.png", "Anna.png", "Armor King.png", "Asuka.png", "Bob.png", "Bryan.png", "Claudio.png", "Devil Jin.png", "Dragunov.png", "Eddy.png", "Eliza.png", "Fahkumram.png", "Feng.png", "Ganryu.png", "Geese.png", "Gigas.png", "Heihachi.png", "Hwoarang.png", "Jack-7.png", "Jin.png", "Josie.png", "Julia.png", "Katarina.png", "Kazumi.png", "Kazuya.png", "King.png", "Kuma.png", "Kunimitsu.png", "Lars.png", "Law.png", "Lee.png", "Lei.png", "Leo.png", "Leroy.png", "Lidia.png", "Lili.png", "Lucky Chloe.png", "Marduk.png", "Master Raven.png", "Miguel.png", "Negan.png", "Nina.png", "Noctis.png", "Panda.png", "Paul.png", "Shaheen.png", "Steve.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
+            tekken8: { name: "Tekken 8", genre: "3d", roster: ["Alisa.png", "Anna.png", "Asuka.png", "Azucena.png", "Bryan.png", "Claudio.png", "Clive.png", "Devil Jin.png", "Dragunov.png", "Eddy Gordo.png", "Fahkumram.png", "Feng.png", "Heihachi.png", "Hwoarang.png", "Jack-8.png", "Jin.png", "Jun.png", "Kazuya.png", "King.png", "Kuma.png", "Lars.png", "Law.png", "Lee.png", "Leo.png", "Leroy.png", "Lidia.png", "Lili.png", "Nina.png", "Panda.png", "Paul.png", "Raven.png", "Reina.png", "Shaheen.png", "Steve.png", "Victor.png", "Xiaoyu.png", "Yoshimitsu.png", "Zafina.png"] },
+            gg: { name: "Guilty Gear", genre: "anime", roster: ["Sol Badguy.png", "Ky Kiske.png", "May.png", "Dr. Baldhead.png", "Potemkin.png", "Chipp Zanuff.png", "Zato-ONE.png", "Millia Rage.png", "Axl Low.png", "Kliff Undersn.png", "Testament.png", "Justice.png", "Baiken.png"] },
+            ggx: { name: "Guilty Gear X", genre: "anime", roster: ["Anji.png", "Axl.png", "Baiken.png", "Chipp.png", "Dizzy.png", "Faust.png", "Jam.png", "Johnny.png", "Ky.png", "May.png", "Millia.png", "Potemkin.png", "Sol Badguy.png", "Testament.png", "Venom.png", "Zato-1.png"] },
+            ggxxacp: { name: "Guilty Gear XX Λ Core Plus R", genre: "anime", roster: ["A.B.A..png", "Anji.png", "Axl.png", "Baiken.png", "Bridget.png", "Chipp.png", "Dizzy.png", "Eddie.png", "Faust.png", "I-No.png", "Jam.png", "Johnny.png", "Justice.png", "Kliff.png", "Ky.png", "May.png", "Millia.png", "Order-Sol.png", "Potemkin.png", "Robo-Ky.png", "Slayer.png", "Sol Badguy.png", "Testament.png", "Venom.png", "Zappa.png"] },
+            ggxr2: { name: "Guilty Gear Xrd Rev 2", genre: "anime", roster: ["Answer.png", "Axl.png", "Baiken.png", "Bedman.png", "Chipp.png", "Dizzy.png", "Elphelt.png", "Faust.png", "I-No.png", "Jack-O.png", "Jam.png", "Johnny.png", "Kum.png", "Ky.png", "Leo.png", "May.png", "Millia.png", "Potemkin.png", "Ramlethal.png", "Raven.png", "Sin.png", "Slayer.png", "Sol Badguy.png", "Venom.png", "Zato-1.png"] },
+            ggs: { name: "Guilty Gear Strive", genre: "anime", roster: ["A.B.A..png", "Anji.png", "Asuka R.png", "Axl.png", "Baiken.png", "Bedman.png", "Bridget.png", "Chipp.png", "Dizzy.png", "Elphelt.png", "Faust.png", "Giovanna.png", "Goldlewis.png", "Happy Chaos.png", "Jack-O.png", "Johnny.png", "Ky.png", "Leo.png", "Lucy.png", "May.png", "Millia.png", "Nagoriyuki.png", "Potemkin.png", "Ramlethal.png", "Sin.png", "Slayer.png", "Sol Badguy.png", "Testament.png", "Unika.png", "Venom.png", "Zato-1.png"] },
+            xmvssf: { name: "X-Men vs. Street Fighter", genre: "vs", roster: ["Akuma.png", "Magneto.png", "Juggernaut.png", "Dhalsim.png", "M. Bison.png", "Sabretooth.png", "Storm.png", "Chun-Li.png", "Zangief.png", "Gambit.png", "Rogue.png", "Cammy.png", "Charlie.png", "Wolverine.png", "Cyclops.png", "Ryu.png", "Ken.png"] },
+            mshvsf: { name: "Marvel Super Heroes vs. Street Fighter", genre: "vs", roster: ["Akuma.png", "Armored Spider-man.png", "Blackheart.png", "Captain America.png", "Chun-Li.png", "Cyber Akuma.png", "Cyclops.png", "Dan.png", "Dark Sakura.png", "Dhalsim.png", "Hulk.png", "Ken.png", "M. Bison.png", "Mech Zangief.png", "Mephisto.png", "Norimaro.png", "Omega Red.png", "Ryu.png", "Sakura.png", "Shadow.png", "Shuma-Gorath.png", "Spider-Man.png", "U.S. Agent.png", "Wolverine.png", "Zangief.png"]},
+            nuns: { name: "Naruto: Ultimate Ninja Storm", genre: "arena", roster: ["Anko Mitarashi.png", "Asuma Sarutobi.png", "Choji Akimiji.png", "Gaara of the Sand.png", "Hashirama Senju.png", "Hinata Hyuga.png", "Hiruzen Sarutobe.png", "Ino Yamanaka.png", "Itachi Uchiha.png", "Jiraiya.png", "Jirobo.png", "Kabuto Yakushi.png", "Kakashi Hatake.png", "Kankuro.png", "Kiba Inuzuka.png", "Kidomaru.png", "Kimimaro.png", "Kisame Hoshigake.png", "Kurenai Yuhi.png", "Might Guy.png", "Naruto Uzumaki.png", "Neji Hyuga.png", "Orochimaru.png", "Rock Lee.png", "Sakon & Ukon.png", "Sakura Haruno.png", "Sasuke Uchiha.png", "Shikamaru Nara.png", "Shino Aburame.png", "Shizune.png", "Tayuya.png", "Temari.png", "Tenten.png", "Tobirama Senju.png", "Tsunade.png"] },
+            dbzbt1: { name: "Dragon Ball Z: Budokai Tenkaichi", genre: "arena", roster: ["Android 16.png", "Android 17.png", "Android 18.png", "Android 19.png", "Android 20.png", "Baby Vegeta.png", "Bardock.png", "Bojack.png", "Broly.png", "Burter.png", "Captain Ginyu.png", "Imperfect Cell.png", "Semi-Perfect Cell.png", "Perfect Cell.png", "Cell Jr.png", "Chiaotzu.png", "Cooler.png", "Demon King Dabura.png", "Dodoria.png", "Frieza.png", "Form 2 Frieza.png", "Form 3 Frieza.png", "Final Form Frieza.png", "Metal Frieza.png", "Full Power Frieza.png", "General Tao.png", "Gogeta.png", "Gohan.png", "Gohan SS.png", "Gohan SS2.png", "Ultimate Gohan.png", "Goku SS.png", "Goku SS2.png", "Goku SS3.png", "Goku SS4.png", "Goku.png", "Goten.png", "Goten SS.png", "Gotenks.png", "Gotenks SS.png", "Gotenks SS3.png", "Great Ape.png", "Great Saiyaman.png", "Guldo.png", "Mr. Satan.png", "Janemba.png", "Jeice.png", "Kid Buu.png", "Kid Gohan.png", "Kid Goku.png", "Kid Trunks.png", "Kid Trunks SS.png", "Krillin.png", "Majin Buu (good).png", "Majin Buu (pure evil).png", "Master Roshi.png", "Nappa.png", "Piccolo.png", "Raditz.png", "Recoome.png", "Saibaman.png", "Super 17.png", "Super Buu.png", "Super Buu (Gotenks).png", "Super Buu (Piccolo).png", "Super Gogeta.png", "Teen Gohan.png", "Teen Gohan SS.png", "Teen Gohan SS2.png", "Tien.png", "Trunks.png", "Trunks SS.png", "Trunks SSG4.png", "Trunks (w Sword).png", "Trunks (w Sword) SS.png", "Vegeta (Scouter).png", "Great Ape Vegeta.png", "Vegeta.png", "Vegeta SS.png", "Majin Vegeta.png", "Vegeta SS2.png", "Vegeta SS4.png", "Vegito.png", "Vegito SS.png", "Videl.png", "Yamcha.png", "Zarbon.png", "Zarbon (Post-Transformation).png"] }
+        };
 
-function pickRandomCharacter() {
-  const availableCharacters = Array.from(availableGrid.children);
-  if (availableCharacters.length === 0) {
-    popup.style.display = 'none';
-    //alert("No characters left to pick!");
-    return;
-  }
-  const randomIndex = Math.floor(Math.random() * availableCharacters.length);
-  pickedCharacter = availableCharacters[randomIndex];
+        /* --- Elements --- */
+        const genreSelect = document.getElementById('genre-select');
+        const gameSelect = document.getElementById('game-select');
+        const startButton = document.getElementById('start-button');
+        const startScreen = document.getElementById('start-screen');
+        const mainApp = document.getElementById('main-app');
+        const congratsScreen = document.getElementById('congrats-screen');
+        const availableGrid = document.getElementById('available-grid');
+        const selectedGrid = document.getElementById('selected-grid');
+        const randomPickButton = document.getElementById('random-pick');
+        const resetCharactersButton = document.getElementById('reset-characters');
+        const backToSelectionButton = document.getElementById('back-to-selection');
+        const percentageDisplay = document.getElementById('percentage');
+        const popup = document.getElementById('popup');
+        const popupImages = document.getElementById('popup-images');
+        const popupName = document.getElementById('popup-name');
+        const popupProgress = document.getElementById('popup-progress');
+        const resetGoBtn = document.getElementById('reset-go');
+        const continueBtn = document.getElementById('continue');
+        const closeBtn = document.getElementById('close');
+        const restartButton = document.getElementById('restart-button');
+        const teamSizeSelect = document.getElementById('team-size-select');
 
-  const img = pickedCharacter.querySelector('img');
-  popupImg.src = img.src;
-  popupName.textContent = pickedCharacter.getAttribute('data-name') || img.alt;
+        let pickedCharacter = null;
+        let currentRoster = [];
+        let currentGame = "";
+        let teamSize = 1;
 
-  const total = availableGrid.children.length + selectedGrid.children.length;
-  const completed = selectedGrid.children.length + 1;
-  const percentage = total === 0 ? 0 : (completed / total * 100).toFixed(1);
-  popupProgress.textContent = `${completed}/${total} (${percentage}%)`;
+        /* --- Functions --- */
+        function updatePercentage() {
+            const total = availableGrid.children.length + selectedGrid.children.length;
+            const remaining = availableGrid.children.length;
+            const percentage = total === 0 ? 0 : (remaining / total * 100).toFixed(1);
+            percentageDisplay.textContent = `${percentage}% Characters Remaining`;
+        }
 
-  popup.style.display = 'block';
-}
+        function checkCompletion() {
+            if (availableGrid.children.length === 0) {
+                mainApp.classList.remove('active');
+                congratsScreen.style.display = 'block';
+                popup.style.display = 'none';
+            }
+        }
 
-function resetCharacterLists() {
-  availableGrid.innerHTML = '';
-  selectedGrid.innerHTML = '';
-  currentRoster.forEach(file => {
-    const name = file.replace('.png', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    const div = document.createElement('div');
-    div.className = 'character';
-    div.setAttribute('data-name', name);
-    div.innerHTML = `<img src="Images/${currentGame}/${file}" alt="${name}">`;
-    div.addEventListener('click', () => {
-      moveCharacterOneWay(div);
-    });
-    availableGrid.appendChild(div);
-  });
-  updatePercentage();
-}
+        function moveCharacterOneWay(character) {
+            if (availableGrid.contains(character)) {
+                availableGrid.removeChild(character);
+                character.classList.add('selected');
+                selectedGrid.appendChild(character);
+            }
+            updatePercentage();
+            checkCompletion();
+        }
 
-// --- Event Listeners ---
-genreSelect.addEventListener('change', () => {
-  const selectedGenre = genreSelect.value;
-  gameSelect.innerHTML = '<option value="">-- Select Game --</option>';
+        function pickRandomCharacter() {
+            let availableCharacters = Array.from(availableGrid.children);
+            if (availableCharacters.length === 0) {
+                popup.style.display = 'none';
+                return;
+            }
 
-  if (selectedGenre) {
-    for (const [key, game] of Object.entries(allGames)) {
-      if (game.genre === selectedGenre) {
-        const option = document.createElement('option');
-        option.value = key;
-        option.textContent = game.name;
-        gameSelect.appendChild(option);
-      }
-    }
-    gameSelect.disabled = false;
-  } else {
-    gameSelect.disabled = true;
-  }
+            const picks = [];
+            for (let i = 0; i < teamSize && availableCharacters.length > 0; i++) {
+                const randomIndex = Math.floor(Math.random() * availableCharacters.length);
+                picks.push(availableCharacters.splice(randomIndex, 1)[0]);
+            }
 
-  startButton.disabled = true;
-});
+            pickedCharacter = picks.length === 1 ? picks[0] : picks;
 
-gameSelect.addEventListener('change', () => {
-  startButton.disabled = gameSelect.value === "";
-});
+            popupImages.innerHTML = "";
+            picks.forEach(c => {
+                const img = c.querySelector("img").cloneNode(true);
+                popupImages.appendChild(img);
+            });
+            popupName.textContent = picks.map(c => c.getAttribute("data-name")).join(", ");
 
-startButton.addEventListener('click', () => {
-  currentGame = gameSelect.value;
-  currentRoster = allGames[currentGame]?.roster || [];
+            const total = availableGrid.children.length + selectedGrid.children.length;
+            const completed = selectedGrid.children.length + picks.length;
+            const percentage = total === 0 ? 0 : (completed / total * 100).toFixed(1);
+            popupProgress.textContent = `${completed}/${total} (${percentage}%)`;
 
-  resetCharacterLists();
-  startScreen.classList.remove('active');
-  mainApp.classList.add('active');
-});
+            popup.style.display = "block";
+        }
 
-randomPickButton.addEventListener('click', pickRandomCharacter);
+        function resetCharacterLists() {
+            availableGrid.innerHTML = '';
+            selectedGrid.innerHTML = '';
+            currentRoster.forEach(file => {
+                const name = file.replace('.png', '').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                const div = document.createElement('div');
+                div.className = 'character';
+                div.setAttribute('data-name', name);
+                div.innerHTML = `<img src="Images/${currentGame}/${file}" alt="${name}">`;
+                div.addEventListener('click', () => {
+                    moveCharacterOneWay(div);
+                });
+                availableGrid.appendChild(div);
+            });
+            updatePercentage();
+        }
 
-resetGoBtn.addEventListener('click', () => {
-  resetCharacterLists();
-  pickRandomCharacter();
-});
+        /* --- Event Listeners --- */
+        genreSelect.addEventListener('change', () => {
+            const selectedGenre = genreSelect.value;
+            gameSelect.innerHTML = '<option value="">-- Select Game --</option>';
 
-continueBtn.addEventListener('click', () => {
-  if (pickedCharacter) moveCharacterOneWay(pickedCharacter);
-  pickRandomCharacter();
-});
+            if (selectedGenre) {
+                for (const [key, game] of Object.entries(allGames)) {
+                    if (game.genre === selectedGenre) {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = game.name;
+                        gameSelect.appendChild(option);
+                    }
+                }
+                gameSelect.disabled = false;
+            } else {
+                gameSelect.disabled = true;
+            }
+            startButton.disabled = true;
+        });
 
-closeBtn.addEventListener('click', () => {
-  popup.style.display = 'none';
-});
+        gameSelect.addEventListener('change', () => {
+            startButton.disabled = gameSelect.value === "";
+        });
 
-resetCharactersButton.addEventListener('click', () => {
-  resetCharacterLists();
-});
+        startButton.addEventListener('click', () => {
+            currentGame = gameSelect.value;
+            currentRoster = allGames[currentGame]?.roster || [];
+            resetCharacterLists();
+            startScreen.classList.remove('active');
+            mainApp.classList.add('active');
+        });
 
-backToSelectionButton.addEventListener('click', () => {
-  mainApp.classList.remove('active');
-  startScreen.classList.add('active');
+        teamSizeSelect.addEventListener('change', (e) => {
+            teamSize = parseInt(e.target.value, 10);
+        });
 
-  availableGrid.innerHTML = '';
-  selectedGrid.innerHTML = '';
-  popup.style.display = 'none';
-  
-  genreSelect.value = "";
-  gameSelect.innerHTML = '<option value="">-- Select Game --</option>';
-  gameSelect.disabled = true;
-  startButton.disabled = true;
-  
-  percentageDisplay.textContent = "";
-});
+        randomPickButton.addEventListener('click', pickRandomCharacter);
 
-restartButton.addEventListener('click', () => {
-  congratsScreen.style.display = 'none';
-  startScreen.classList.add('active');
-  genreSelect.value = "";
-  gameSelect.disabled = true;
-  startButton.disabled = true;
-});
-</script>
+        resetGoBtn.addEventListener('click', () => {
+            resetCharacterLists();
+            pickRandomCharacter();
+        });
+
+        continueBtn.addEventListener('click', () => {
+            if (pickedCharacter) {
+                if (Array.isArray(pickedCharacter)) {
+                    pickedCharacter.forEach(c => moveCharacterOneWay(c));
+                } else {
+                    moveCharacterOneWay(pickedCharacter);
+                }
+            }
+            pickRandomCharacter();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        resetCharactersButton.addEventListener('click', () => {
+            resetCharacterLists();
+        });
+
+        backToSelectionButton.addEventListener('click', () => {
+            mainApp.classList.remove('active');
+            startScreen.classList.add('active');
+            availableGrid.innerHTML = '';
+            selectedGrid.innerHTML = '';
+            popup.style.display = 'none';
+            genreSelect.value = "";
+            gameSelect.innerHTML = '<option value="">-- Select Game --</option>';
+            gameSelect.disabled = true;
+            startButton.disabled = true;
+            percentageDisplay.textContent = "";
+        });
+
+        restartButton.addEventListener('click', () => {
+            congratsScreen.style.display = 'none';
+            startScreen.classList.add('active');
+            genreSelect.value = "";
+            gameSelect.disabled = true;
+            startButton.disabled = true;
+        });
+    </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
