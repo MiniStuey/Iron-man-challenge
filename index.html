@@ -341,47 +341,6 @@
             updatePercentage();
         }
 
-        const sortTierButton = document.getElementById('sort-tier');
-
-        sortTierButton.addEventListener('click', () => {
-            fetch(`tierlists/${currentGame}.json`)
-                .then(response => response.json())
-                .then(tierData => {
-                    sortCharactersByTier(tierData);
-                })
-                .catch(err => {
-                    alert("Tier list file not found or invalid JSON!");
-                    console.error(err);
-                });
-        });
-
-        function sortCharactersByTier(tierData) {
-            const characters = Array.from(availableGrid.children);
-            const tierOrder = Object.keys(tierData); // ["S", "A", "B", "C", etc.]
-
-            // Create a mapping from name to tier rank
-            const rankMap = {};
-            tierOrder.forEach((tier, i) => {
-                tierData[tier].forEach(name => {
-                    rankMap[name.toLowerCase()] = i; // Lowercase for easier comparison
-                });
-            });
-
-            // Sort the characters based on the rankMap
-            characters.sort((a, b) => {
-                const nameA = a.getAttribute('data-name').toLowerCase();
-                const nameB = b.getAttribute('data-name').toLowerCase();
-
-                const rankA = rankMap[nameA] !== undefined ? rankMap[nameA] : tierOrder.length;
-                const rankB = rankMap[nameB] !== undefined ? rankMap[nameB] : tierOrder.length;
-
-                return rankA - rankB;
-            });
-
-            // Clear and re-append in new order
-            availableGrid.innerHTML = '';
-            characters.forEach(c => availableGrid.appendChild(c));
-        }
 
         /* --- Event Listeners --- */
         genreSelect.addEventListener('change', () => {
@@ -471,5 +430,6 @@
 </body>
 
 </html>
+
 
 
